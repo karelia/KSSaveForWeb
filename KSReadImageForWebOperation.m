@@ -95,12 +95,14 @@
 {
     RESULT_PROLOGUE;
     
-    if (!_image && _source)
+    if (_image || ![self isFinished] || !_source)
     {
-        _image = CGImageSourceCreateImageAtIndex(_source, 0, NULL);
+        return _image;
     }
     
-    return _image;
+    CGImageRef result = CGImageSourceCreateImageAtIndex(_source, 0, NULL);
+    [(id <NSObject>)result autorelease];
+    return result;
 }
 
 - (CFDictionaryRef)imageProperties;

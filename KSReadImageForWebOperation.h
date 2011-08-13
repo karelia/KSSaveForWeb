@@ -37,7 +37,7 @@
 @property(readonly) CGImageSourceRef imageSource;   // behaves like -[NSInvocationOperation result]
 @property(readonly) CFDictionaryRef imageProperties;    // nil if couldn't be read
 
-// If the image need sizing, CGImage will have already been created, so this is fast. Otherwise it blocks while the image is created from source
+// If the operation has cached a CGImage, returns it. Otherwise blocks while the image is created from source
 @property(readonly) CGImageRef CGImage;
 
 // Blocks while writing the image data, so in general it's better to do this using a KSWriteImageDataOperation
