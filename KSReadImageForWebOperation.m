@@ -171,8 +171,12 @@
 - (CIImage *)newCIImageWithScalingMode:(KSImageScalingMode)scalingMode
                             sharpening:(CGFloat)sharpeningFactor;
 {
+    CGImageRef image = [self CGImage];
+    if (!image) return nil;
+    
+    CIImage *result = [[CIImage alloc] initWithCGImage:image];
+    
     // Scale the image if needed
-    CIImage *result = [[CIImage alloc] initWithCGImage:[self CGImage]];
     if ([self needsSizing])
     {
         CIImage *scaledImage = [result imageByScalingToSize:CGSizeMake([_width floatValue], [_height floatValue])
