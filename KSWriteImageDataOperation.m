@@ -14,6 +14,7 @@
 - (id)initWithCGImageOperation:(KSCreateCGImageForWebOperation *)imageOp type:(NSString *)type;
 {
     NSParameterAssert(imageOp);
+    NSParameterAssert(type);
     
     if (self = [self init])
     {
