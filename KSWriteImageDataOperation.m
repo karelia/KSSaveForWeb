@@ -33,7 +33,7 @@
     
     if (self = [self init])
     {
-        _imageOp = [imageOp retain];
+        _createImageOp = [imageOp retain];
         _type = [type copy];
         
         [self addDependency:imageOp];
@@ -45,7 +45,7 @@
 - (void)dealloc;
 {
     [_type release];
-    [_imageOp release];
+    [_createImageOp release];
     [_result release];
     
     [super dealloc];
@@ -55,23 +55,58 @@
 
 - (void)main
 {
-    CGImageRef image = [_imageOp CGImage];
-    if (!image) return;
-    
+    // Prepare the destination
     NSMutableData *result = [[NSMutableData alloc] init];
     
     CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)result,
                                                                          (CFStringRef)_type,
                                                                          1,
                                                                          NULL);
+    if (!destination)
+    {
+        [result release];
+        return;
+    }
     
-    CGImageDestinationAddImage(destination,
-                               image,
-                               (CFDictionaryRef)[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.7] forKey:(NSString *)kCGImageDestinationLossyCompressionQuality]);
     
-    CGImageDestinationFinalize(destination);
+    // Find the image to write
+    CGImageRef image = [_createImageOp CGImage];
+    if (image)
+    {
+        CGImageDestinationAddImage(destination,
+                                   image,
+                                   (CFDictionaryRef)[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.7] forKey:(NSString *)kCGImageDestinationLossyCompressionQuality]);
+    }
+    else
+    {
+        KSReadImageForWebOperation *readOp = [_createImageOp readOperation];
+        CGImageSourceRef source = [readOp imageSource];
+        
+        if (source && ![readOp needsSizing] && [readOp isAcceptableForWeb])
+        {
+            // Copy the image from source to destination!
+            CGImageDestinationAddImageFromSource(destination, source, 0, NULL);
+        }
+        else
+        {
+            [result release];
+            CFRelease(destination);
+            return;
+        }
+    }
+    
+    
+    BOOL wrote = CGImageDestinationFinalize(destination);
     CFRelease(destination);
-    _result = result;
+    
+    if (wrote)
+    {
+        _result = result;
+    }
+    else
+    {
+        [result release];
+    }
 }
 
 @end

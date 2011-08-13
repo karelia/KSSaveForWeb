@@ -121,7 +121,10 @@
     
     
     // If no colorsapce OK and no scaling required, no need to read out CGImage
-    if ([self isAcceptableForWeb] && ![self needsSizing]) return;
+    if ([self isAcceptableForWeb] && ![self needsSizing])
+    {
+        return;
+    }
     
     _image = CGImageSourceCreateImageAtIndex(_source, 0, NULL);
 }
@@ -133,31 +136,6 @@
 {
     RESULT_PROLOGUE;
     if (![self isFinished]) return nil;
-    
-    
-    // Can just copy the image data straight across?
-    // FIXME: This could use Core Image unecessarily if somebody already called -CGImage
-    if (!_image)
-    {        
-        NSMutableData *result = [NSMutableData data];
-        
-        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)result,
-                                                                             (CFStringRef)type,
-                                                                             1,
-                                                                             NULL);
-        OBASSERT(destination);
-        
-        // As far as I can tell, this avoids recompressing JPEGs
-        CGImageDestinationAddImageFromSource(destination, _source, 0, NULL);
-        
-        if (!CGImageDestinationFinalize(destination)) result = nil;
-        CFRelease(destination);
-        
-        return result;
-    }
-    
-    
-    
     
     
     // Render a CGImage

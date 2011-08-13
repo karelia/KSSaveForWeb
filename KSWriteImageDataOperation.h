@@ -15,7 +15,7 @@
 {
   @private
     NSString                        *_type;
-    KSCreateCGImageForWebOperation  *_imageOp;
+    KSCreateCGImageForWebOperation  *_createImageOp;
     NSData                          *_result;
 }
 
