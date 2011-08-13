@@ -11,6 +11,21 @@
 
 @implementation KSWriteImageDataOperation
 
+- (id)initWithCIImage:(CIImage *)image
+                 type:(NSString *)type
+              context:(CIContext *)context
+                queue:(NSOperationQueue *)coreImageQueue;
+{
+    NSParameterAssert(coreImageQueue);
+    
+    KSCreateCGImageForWebOperation *imageOp = [[KSCreateCGImageForWebOperation alloc] initWithCIImage:image
+                                                                                              context:context];
+    
+    [coreImageQueue addOperation:imageOp];
+    
+    return [self initWithCGImageOperation:imageOp type:type];
+}
+
 - (id)initWithCGImageOperation:(KSCreateCGImageForWebOperation *)imageOp type:(NSString *)type;
 {
     NSParameterAssert(imageOp);
