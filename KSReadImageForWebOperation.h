@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "CIImage+Karelia.h"
+
 
 @interface KSReadImageForWebOperation : NSOperation
 {
@@ -25,10 +27,24 @@
 // If you have a target image size, pass in as the width and height paramaters
 // If the operation determines the image needs scaling, or is in an unsuitable colorspace for the web, -CGImage will be populated once finished
 
-- (id)initWithData:(NSData *)data width:(NSNumber *)width height:(NSNumber *)height;
+- (id)initWithData:(NSData *)data
+             width:(NSNumber *)width
+            height:(NSNumber *)height;
+
+- (BOOL)needsSizing;    // NO if image is already correct dimensions
 
 @property(readonly) CGImageSourceRef imageSource;
 @property(readonly) CFDictionaryRef imageProperties;    // nil if couldn't be read
 @property(readonly) CGImageRef CGImage;
+
+// Blocks while writing the image data, so in general it's better to do this using a KSWriteImageDataOperation
+- (NSData *)dataWithType:(NSString *)type
+             scalingMode:(KSImageScalingMode)scalingMode
+              sharpening:(CGFloat)sharpeningFactor          // only applied when scaling
+                 context:(CIContext *)context;
+
+// Creates a CIImage from -CGImage with appropriate scaling applied
+- (CIImage *)newCIImageWithScalingMode:(KSImageScalingMode)scalingMode
+                            sharpening:(CGFloat)sharpeningFactor;
 
 @end
