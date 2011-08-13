@@ -13,6 +13,8 @@
 
 @implementation KSCreateCGImageForWebOperation
 
+#pragma mark Lifecycle
+
 - (id)initWithCIImage:(CIImage *)image context:(CIContext *)context;
 {
     NSParameterAssert(image);
@@ -25,9 +27,30 @@
     return self;
 }
 
+- (id)initWithReadOperation:(KSReadImageForWebOperation *)readOp
+                scalingMode:(KSImageScalingMode)scalingMode
+                 sharpening:(CGFloat)sharpeningFactor
+                    context:(CIContext *)context;
+{
+    NSParameterAssert(readOp);
+    
+    if (self = [self init])
+    {
+        _readOp = [readOp retain];
+        _scalingMode = scalingMode;
+        _sharpening = sharpeningFactor;
+        _context = [context retain];
+        
+        [self addDependency:readOp];
+    }
+    
+    return self;
+}
+
 - (void)dealloc;
 {
     [_image release];
+    [_readOp release];
     [_context release];
     CGImageRelease(_result);
     
@@ -35,9 +58,23 @@
 }
 
 @synthesize CGImage = _result;
+@synthesize readOperation = _readOp;
 
 - (void)main
 {
+    KSReadImageForWebOperation *readOp = [self readOperation];
+    if (readOp)
+    {
+        if (![readOp needsSizing] && [readOp isAcceptableForWeb])
+        {
+            return;
+        }
+        
+        _image = [readOp newCIImageWithScalingMode:_scalingMode sharpening:_sharpening];
+        if (!_image) return;
+    }
+    
+    
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     
     if (!_context)

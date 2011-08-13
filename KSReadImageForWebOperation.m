@@ -161,12 +161,11 @@
     
     
     // Render a CGImage
-    CIImage *image = [self newCIImageWithScalingMode:scalingMode sharpening:sharpeningFactor];
+    KSCreateCGImageForWebOperation *op = [[KSCreateCGImageForWebOperation alloc] initWithReadOperation:self
+                                                                                           scalingMode:scalingMode
+                                                                                            sharpening:sharpeningFactor
+                                                                                               context:context];
     
-    KSCreateCGImageForWebOperation *op = [[KSCreateCGImageForWebOperation alloc] initWithCIImage:image
-                                                                                         context:context];
-    
-    [image release];
     [op start]; // it's not concurrent
     
     
