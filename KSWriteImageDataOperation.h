@@ -19,6 +19,16 @@
     NSData                          *_result;
 }
 
+- (id)initWithData:(NSData *)data
+              type:(NSString *)type
+             width:(NSNumber *)width
+            height:(NSNumber *)height
+             queue:(NSOperationQueue *)readingQueue
+       scalingMode:(KSImageScalingMode)scalingMode
+        sharpening:(CGFloat)sharpeningFactor  // only applied if scaling needed
+           context:(CIContext *)context
+             queue:(NSOperationQueue *)coreImageQueue;
+
 // Convenient way to get data from a CIImage. Your app provides a queue and context for doing the Core Image work on (in general a serial queue since Core Image is internally multithreaded)
 // You then schedule the receiver on a different queue, suitable for writing the image
 - (id)initWithCIImage:(CIImage *)image
