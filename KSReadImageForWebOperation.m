@@ -17,6 +17,8 @@
 
 @implementation KSReadImageForWebOperation
 
+#pragma mark Lifecycle
+
 - (id)initWithData:(NSData *)data width:(NSNumber *)width height:(NSNumber *)height;
 {
     NSParameterAssert(data);
@@ -46,6 +48,41 @@
 
 #pragma mark Properties
 
+- (BOOL)isAcceptableForWeb;
+{
+    // Is the colorspace suitable?
+    CFDictionaryRef properties = [self imageProperties];
+    if (properties)
+    {
+        NSString *colorSpaceName = (NSString *)CFDictionaryGetValue(properties, kCGImagePropertyProfileName);
+        if ([colorSpaceName isEqualToString:@"sRGB IEC61966-2.1"])
+        {
+            // If no scaling required, no need to read out CGImage
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
+- (BOOL)needsSizing;    // NO if image is already correct dimensions
+{
+    CFDictionaryRef properties = [self imageProperties];
+    if (properties)
+    {
+        if (!_width && !_height) return NO;
+        
+        if ([(NSNumber *)CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth) isEqualToNumber:_width] &&
+            [(NSNumber *)CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight) isEqualToNumber:_height])
+        {                
+            // Image is the right size already
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
 - (CGImageSourceRef)imageSource;
 {
     RESULT_PROLOGUE
@@ -68,6 +105,8 @@
 
 - (CFDictionaryRef)imageProperties;
 {
+    RESULT_PROLOGUE
+    
     if (!_properties && _source) _properties = CGImageSourceCopyPropertiesAtIndex(_source, 0, NULL);
     return _properties;
 }
@@ -79,37 +118,10 @@
     if (!_source) return;
     
     
-    // Is the colorspace suitable?
-    CFDictionaryRef properties = [self imageProperties];
-    if (properties)
-    {
-        NSString *colorSpaceName = (NSString *)CFDictionaryGetValue(properties, kCGImagePropertyProfileName);
-        if ([colorSpaceName isEqualToString:@"sRGB IEC61966-2.1"])
-        {
-            // If no scaling required, no need to read out CGImage
-            if (![self needsSizing]) return;
-        }
-    }
+    // If no colorsapce OK and no scaling required, no need to read out CGImage
+    if ([self isAcceptableForWeb] && ![self needsSizing]) return;
     
     _image = CGImageSourceCreateImageAtIndex(_source, 0, NULL);
-}
-
-- (BOOL)needsSizing;    // NO if image is already correct dimensions
-{
-    CFDictionaryRef properties = [self imageProperties];
-    if (properties)
-    {
-        if (!_width && !_height) return NO;
-        
-        if ([(NSNumber *)CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth) isEqualToNumber:_width] &&
-            [(NSNumber *)CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight) isEqualToNumber:_height])
-        {                
-            // Image is the right size already
-            return NO;
-        }
-    }
-    
-    return YES;
 }
 
 - (NSData *)dataWithType:(NSString *)type

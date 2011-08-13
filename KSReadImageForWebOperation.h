@@ -31,6 +31,7 @@
              width:(NSNumber *)width
             height:(NSNumber *)height;
 
+- (BOOL)isAcceptableForWeb; // YES if the source image isn't in a problem colorspace
 - (BOOL)needsSizing;    // NO if image is already correct dimensions
 
 @property(readonly) CGImageSourceRef imageSource;   // behaves like -[NSInvocationOperation result]
