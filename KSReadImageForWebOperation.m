@@ -12,6 +12,9 @@
 #import <QuartzCore/CoreImage.h>
 
 
+#define RESULT_PROLOGUE if ([self isCancelled]) [NSException raise:NSInvocationOperationCancelledException format:@"Cancelled"];
+
+
 @implementation KSReadImageForWebOperation
 
 - (id)initWithData:(NSData *)data width:(NSNumber *)width height:(NSNumber *)height;
@@ -45,12 +48,23 @@
 
 - (CGImageSourceRef)imageSource;
 {
-    if ([self isCancelled]) [NSException raise:NSInvocationOperationCancelledException reason:nil userInfo:nil];
+    RESULT_PROLOGUE
+    
     if (![self isFinished]) return NULL;
     return _source;
 }
 
-@synthesize CGImage = _image;
+- (CGImageRef)CGImage;
+{
+    RESULT_PROLOGUE;
+    
+    if (!_image && _source)
+    {
+        _image = CGImageSourceCreateImageAtIndex(_source, 0, NULL);
+    }
+    
+    return _image;
+}
 
 - (CFDictionaryRef)imageProperties;
 {
@@ -103,13 +117,14 @@
               sharpening:(CGFloat)sharpeningFactor          // only applied when scaling
                  context:(CIContext *)context;
 {
+    RESULT_PROLOGUE;
+    if (![self isFinished]) return nil;
+    
+    
     // Can just copy the image data straight across?
-    CGImageRef cgImage = [self CGImage];
-    if (!cgImage)
-    {
-        if (![self isFinished]) return nil; // -CGImage should return nil if not finished
-        
-        
+    // FIXME: This could use Core Image unecessarily if somebody already called -CGImage
+    if (!_image)
+    {        
         NSMutableData *result = [NSMutableData data];
         
         CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)result,
