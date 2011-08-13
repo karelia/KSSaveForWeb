@@ -33,7 +33,7 @@
 
 - (BOOL)needsSizing;    // NO if image is already correct dimensions
 
-@property(readonly) CGImageSourceRef imageSource;
+@property(readonly) CGImageSourceRef imageSource;   // behaves like -[NSInvocationOperation result]
 @property(readonly) CFDictionaryRef imageProperties;    // nil if couldn't be read
 @property(readonly) CGImageRef CGImage;
 

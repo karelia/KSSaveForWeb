@@ -41,7 +41,15 @@
     [super dealloc];
 }
 
-@synthesize imageSource = _source;
+#pragma mark Properties
+
+- (CGImageSourceRef)imageSource;
+{
+    if ([self isCancelled]) [NSException raise:NSInvocationOperationCancelledException reason:nil userInfo:nil];
+    if (![self isFinished]) return NULL;
+    return _source;
+}
+
 @synthesize CGImage = _image;
 
 - (CFDictionaryRef)imageProperties;
