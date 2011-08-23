@@ -13,39 +13,6 @@
 
 #pragma mark Lifecycle
 
-- (id)initWithData:(NSData *)data
-              type:(NSString *)type
-             width:(NSNumber *)width
-            height:(NSNumber *)height
-             queue:(NSOperationQueue *)readingQueue
-       scalingMode:(KSImageScalingMode)scalingMode
-        sharpening:(CGFloat)sharpeningFactor  // only applied if scaling needed
-           context:(CIContext *)context
-             queue:(NSOperationQueue *)coreImageQueue;
-{
-    NSParameterAssert(readingQueue);
-    NSParameterAssert(coreImageQueue);
-    
-    KSReadImageForWebOperation *readOp = [[KSReadImageForWebOperation alloc] initWithData:data
-                                                                                    width:width
-                                                                                   height:height];
-    
-    [readingQueue addOperation:readOp];
-    
-    KSCreateCGImageForWebOperation *createOp = [[KSCreateCGImageForWebOperation alloc] initWithReadOperation:readOp
-                                                                                                 scalingMode:scalingMode
-                                                                                                  sharpening:sharpeningFactor
-                                                                                                     context:context];
-    [readOp release];
-    
-    [coreImageQueue addOperation:createOp];
-    
-    self = [self initWithCGImageOperation:createOp type:type];
-    
-    [createOp release];
-    return self;
-}
-
 - (id)initWithCIImage:(CIImage *)image
                  type:(NSString *)type
               context:(CIContext *)context
