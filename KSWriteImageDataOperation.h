@@ -29,5 +29,6 @@
 - (id)initWithCGImageOperation:(KSCreateCGImageForWebOperation *)imageOp type:(NSString *)type;
 
 @property(nonatomic, readonly) NSData *data;
+@property(nonatomic, readonly) NSString *type;
 
 @end

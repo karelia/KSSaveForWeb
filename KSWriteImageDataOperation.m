@@ -56,6 +56,7 @@
 #pragma mark Properties
 
 @synthesize data = _result;
+@synthesize type = _type;
 
 - (void)main
 {
