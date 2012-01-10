@@ -32,7 +32,10 @@
                  sharpening:(CGFloat)sharpeningFactor
                     context:(CIContext *)context;
 
-@property(nonatomic, readonly) CGImageRef CGImage;  // NOT KVO-compliant, observe isFinished instead
+// Just to infuriate you, this image produced is NOT threadsafe. Instead it renders lazily when used (I'm not sure if it's then cached after that)
+// NOT KVO-compliant, observe isFinished instead
+@property(nonatomic, readonly) CGImageRef CGImage;
+
 @property(nonatomic, retain, readonly) KSReadImageForWebOperation *readOperation;
 
 @end
