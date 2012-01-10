@@ -19,12 +19,10 @@
     NSData                          *_result;
 }
 
-// Convenient way to get data from a CIImage. Your app provides a queue and context for doing the Core Image work on (in general a serial queue since Core Image is internally multithreaded)
-// You then schedule the receiver on a different queue, suitable for writing the image
+// Convenient way to get data from a CIImage. Your app provides a context for doing the Core Image work on. You then schedule the receiver on a  queue, suitable for writing the image (generally a serial queue so the context can't be accessed from multiple threads at once)
 - (id)initWithCIImage:(CIImage *)image
                  type:(NSString *)type
-              context:(CIContext *)context
-                queue:(NSOperationQueue *)coreImageQueue;
+              context:(CIContext *)context;
 
 - (id)initWithCGImageOperation:(KSCreateCGImageForWebOperation *)imageOp type:(NSString *)type;
 

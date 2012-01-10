@@ -15,15 +15,10 @@
 
 - (id)initWithCIImage:(CIImage *)image
                  type:(NSString *)type
-              context:(CIContext *)context
-                queue:(NSOperationQueue *)coreImageQueue;
+              context:(CIContext *)context;
 {
-    NSParameterAssert(coreImageQueue);
-    
     KSCreateCGImageForWebOperation *imageOp = [[KSCreateCGImageForWebOperation alloc] initWithCIImage:image
                                                                                               context:context];
-    
-    [coreImageQueue addOperation:imageOp];
     
     return [self initWithCGImageOperation:imageOp type:type];
 }
@@ -37,8 +32,6 @@
     {
         _createImageOp = [imageOp retain];
         _type = [type copy];
-        
-        [self addDependency:imageOp];
     }
     
     return self;
@@ -60,6 +53,9 @@
 
 - (void)main
 {
+    [_createImageOp start]; // generate the CGImage
+    
+    
     // Prepare the destination
     NSMutableData *result = [[NSMutableData alloc] init];
     
