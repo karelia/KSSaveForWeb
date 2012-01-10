@@ -120,7 +120,7 @@
     if (!_source) return;
     
     
-    // If no colorsapce OK and no scaling required, no need to read out CGImage
+    // If colorspace is OK and no scaling required, no need to read out CGImage
     if ([self isAcceptableForWeb] && ![self needsSizing])
     {
         return;
