@@ -7,7 +7,7 @@
 //
 
 #import "KSReadImageForWebOperation.h"
-#import "KSWriteImageDataOperation.h"
+#import "KSWebImageFactory.h"
 
 #import <QuartzCore/CoreImage.h>
 
@@ -138,23 +138,17 @@
     if (![self isFinished]) return nil;
     
     
-    // Render a CGImage
-    KSCreateCGImageForWebOperation *op = [[KSCreateCGImageForWebOperation alloc] initWithReadOperation:self
-                                                                                           scalingMode:scalingMode
-                                                                                            sharpening:sharpeningFactor
-                                                                                               context:context];
-    
-    [op start]; // it's not concurrent
-    
-    
     // Convert to data
-    KSWriteImageDataOperation *dataOp = [[KSWriteImageDataOperation alloc] initWithCGImageOperation:op
-                                                                                               type:type];
-    [op release];
+    KSWebImageFactory *factory = [[KSWebImageFactory alloc] init];
+    [factory setType:type];
+    [factory setLossyCompressionQuality:[NSNumber numberWithFloat:0.7]];
+    [factory setContext:context];
     
-    [dataOp start]; // it's not concurrent
-    NSData *result = [[[dataOp data] retain] autorelease];
-    [dataOp release];
+    
+    CIImage *image = [self newCIImageWithScalingMode:scalingMode sharpening:sharpeningFactor];
+    NSData *result = [factory dataWithCIImage:image];
+    [image release];
+    [factory release];
     
     return result;
 }
